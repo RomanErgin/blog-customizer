@@ -25,6 +25,52 @@
 	border-right: 1px solid #000000;
 }
 
+.title {
+	margin: 0 0 30px;
+	color: #000000;
+	font-weight: 800;
+	font-size: 18px;
+	text-transform: uppercase;
+}
+
+.fontSizeGroup {
+	display: flex;
+	flex-direction: column;
+	row-gap: 8px;
+}
+
+.fontSizeLabel {
+	color: #000000;
+	font-weight: 800;
+	font-size: 12px;
+	text-transform: uppercase;
+}
+
+.fontSizeButtons {
+	display: flex;
+	gap: 8px;
+}
+
+.fontSizeButton {
+	padding: 8px 16px;
+	color: #000000;
+	font-weight: 400;
+	font-size: 12px;
+	background-color: #ffffff;
+	border: 1px solid #000000;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+
+	&:hover {
+		background-color: #f0f0f0;
+	}
+}
+
+.fontSizeButton_active {
+	color: #000000;
+	background-color: #ffc802;
+}
+
 .bottomContainer {
 	display: flex;
 	justify-content: space-between;
