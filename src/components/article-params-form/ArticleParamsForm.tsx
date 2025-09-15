@@ -1,7 +1,9 @@
+import { useState, useRef } from 'react';
 import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
 import { Select } from 'src/ui/select';
 import { Separator } from 'src/ui/separator';
+import { useOutsideClickClose } from 'src/ui/select/hooks/useOutsideClickClose';
 import {
 	ArticleStateType,
 	fontFamilyOptions,
@@ -9,61 +11,90 @@ import {
 	backgroundColors,
 	contentWidthArr,
 	fontSizeOptions,
+	defaultArticleState,
 } from 'src/constants/articleProps';
 import clsx from 'clsx';
 
 import styles from './ArticleParamsForm.module.scss';
 
 interface ArticleParamsFormProps {
-	isOpen: boolean;
-	onToggle: () => void;
-	formSettings: ArticleStateType;
-	onFormSettingsChange: (settings: ArticleStateType) => void;
-	onApply: () => void;
-	onReset: () => void;
+	onSettingsChange: (settings: ArticleStateType) => void;
 }
 
 export const ArticleParamsForm = ({
-	isOpen,
-	onToggle,
-	formSettings,
-	onFormSettingsChange,
-	onApply,
-	onReset,
+	onSettingsChange,
 }: ArticleParamsFormProps) => {
+	// Состояние сайдбара
+	const [isOpen, setIsOpen] = useState(false);
+	// Настройки в форме (могут отличаться от примененных)
+	const [formSettings, setFormSettings] =
+		useState<ArticleStateType>(defaultArticleState);
+	// Ref для сайдбара
+	const sidebarRef = useRef<HTMLDivElement>(null);
+
+	const handleSidebarToggle = () => {
+		setIsOpen(!isOpen);
+	};
+
+	// Закрытие сайдбара при клике снаружи
+	useOutsideClickClose({
+		isOpen,
+		rootRef: sidebarRef,
+		onChange: setIsOpen,
+	});
+
 	const handleFontFamilyChange = (option: (typeof fontFamilyOptions)[0]) => {
 		console.log('Изменен шрифт:', option);
-		onFormSettingsChange({ ...formSettings, fontFamilyOption: option });
+		setFormSettings({ ...formSettings, fontFamilyOption: option });
 	};
 
 	const handleFontColorChange = (option: (typeof fontColors)[0]) => {
 		console.log('Изменен цвет текста:', option);
-		onFormSettingsChange({ ...formSettings, fontColor: option });
+		setFormSettings({ ...formSettings, fontColor: option });
 	};
 
 	const handleBackgroundColorChange = (
 		option: (typeof backgroundColors)[0]
 	) => {
 		console.log('Изменен цвет фона:', option);
-		onFormSettingsChange({ ...formSettings, backgroundColor: option });
+		setFormSettings({ ...formSettings, backgroundColor: option });
 	};
 
 	const handleContentWidthChange = (option: (typeof contentWidthArr)[0]) => {
 		console.log('Изменена ширина контента:', option);
-		onFormSettingsChange({ ...formSettings, contentWidth: option });
+		setFormSettings({ ...formSettings, contentWidth: option });
 	};
 
 	const handleFontSizeChange = (option: (typeof fontSizeOptions)[0]) => {
 		console.log('Изменен размер шрифта:', option);
-		onFormSettingsChange({ ...formSettings, fontSizeOption: option });
+		setFormSettings({ ...formSettings, fontSizeOption: option });
+	};
+
+	const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		console.log('Применяем настройки:', formSettings);
+		onSettingsChange(formSettings);
+		setIsOpen(false);
+	};
+
+	const handleFormReset = (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		console.log('Сбрасываем настройки на дефолтные:', defaultArticleState);
+		setFormSettings(defaultArticleState);
+		onSettingsChange(defaultArticleState);
+		setIsOpen(false);
 	};
 
 	return (
 		<>
-			<ArrowButton isOpen={isOpen} onClick={onToggle} />
+			<ArrowButton isOpen={isOpen} onClick={handleSidebarToggle} />
 			<aside
+				ref={sidebarRef}
 				className={clsx(styles.container, { [styles.container_open]: isOpen })}>
-				<form className={styles.form}>
+				<form
+					className={styles.form}
+					onSubmit={handleFormSubmit}
+					onReset={handleFormReset}>
 					<h1 className={styles.title}>ЗАДАЙТЕ ПАРАМЕТРЫ</h1>
 
 					<Select
@@ -72,8 +103,6 @@ export const ArticleParamsForm = ({
 						options={fontFamilyOptions}
 						onChange={handleFontFamilyChange}
 					/>
-
-					<Separator />
 
 					<Select
 						title='ЦВЕТ ШРИФТА'
@@ -91,16 +120,12 @@ export const ArticleParamsForm = ({
 						onChange={handleBackgroundColorChange}
 					/>
 
-					<Separator />
-
 					<Select
 						title='ШИРИНА КОНТЕНТА'
 						selected={formSettings.contentWidth}
 						options={contentWidthArr}
 						onChange={handleContentWidthChange}
 					/>
-
-					<Separator />
 
 					<div className={styles.fontSizeGroup}>
 						<div className={styles.fontSizeLabel}>РАЗМЕР ШРИФТА</div>
@@ -121,18 +146,8 @@ export const ArticleParamsForm = ({
 					</div>
 
 					<div className={styles.bottomContainer}>
-						<Button
-							title='СБРОСИТЬ'
-							htmlType='button'
-							type='clear'
-							onClick={onReset}
-						/>
-						<Button
-							title='ПРИМЕНИТЬ'
-							htmlType='button'
-							type='apply'
-							onClick={onApply}
-						/>
+						<Button title='СБРОСИТЬ' htmlType='reset' type='clear' />
+						<Button title='ПРИМЕНИТЬ' htmlType='submit' type='apply' />
 					</div>
 				</form>
 			</aside>

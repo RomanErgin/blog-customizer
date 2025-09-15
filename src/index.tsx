@@ -19,27 +19,10 @@ const App = () => {
 	// Текущие примененные настройки
 	const [appliedSettings, setAppliedSettings] =
 		useState<ArticleStateType>(defaultArticleState);
-	// Настройки в форме (могут отличаться от примененных)
-	const [formSettings, setFormSettings] =
-		useState<ArticleStateType>(defaultArticleState);
-	// Состояние сайдбара
-	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-	const handleApplySettings = () => {
-		console.log('Применяем настройки:', formSettings);
-		setAppliedSettings(formSettings);
-		setIsSidebarOpen(false);
-	};
-
-	const handleResetSettings = () => {
-		console.log('Сбрасываем настройки на дефолтные:', defaultArticleState);
-		setFormSettings(defaultArticleState);
-		setAppliedSettings(defaultArticleState);
-		setIsSidebarOpen(false);
-	};
-
-	const handleSidebarToggle = () => {
-		setIsSidebarOpen(!isSidebarOpen);
+	const handleSettingsChange = (newSettings: ArticleStateType) => {
+		console.log('Применяем настройки:', newSettings);
+		setAppliedSettings(newSettings);
 	};
 
 	// Отслеживаем изменения примененных настроек
@@ -66,14 +49,7 @@ const App = () => {
 					'--bg-color': appliedSettings.backgroundColor.value,
 				} as CSSProperties
 			}>
-			<ArticleParamsForm
-				isOpen={isSidebarOpen}
-				onToggle={handleSidebarToggle}
-				formSettings={formSettings}
-				onFormSettingsChange={setFormSettings}
-				onApply={handleApplySettings}
-				onReset={handleResetSettings}
-			/>
+			<ArticleParamsForm onSettingsChange={handleSettingsChange} />
 			<Article />
 		</main>
 	);
